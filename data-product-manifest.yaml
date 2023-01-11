@@ -1,13 +1,15 @@
 ---
 version: 0.0.1
 discoveryPort:
-  name: Average Transaction Size by Age Group and Gender (Indian Bank Data)
-  description: Average Transaction size by customers from different age groups (20-30, 30-40, 40-50, 50+) and Gender.
-  The output is calculated based on 1 million plus transaction data from an Indian Bank.
+  name: Average property rental value in Madrid neighbourhoods by house type
+  description: The data product provides average house rental rates in Madrid by house
+    type (Pisos, Aticos, Duplex, etc)
   category: customer
-  image: "http://google.com"
+  image: http://google.com
   autofillUserinfo: true
-  tags: []
+  tags:
+    - Madrid
+    - House Rental
   extra: {}
 inputPorts:
   - alias: usersS3_input_port
@@ -20,29 +22,29 @@ inputPorts:
     entityId:
       alias: usersS3
       createEntity: true
-      entityName: bank_transactions.parquet
+      entityName: houses_Madrid.parquet
       type: s3-bucket
-      entityPath: s3a://dp-input-bucket/test/bank_transactions.parquet
+      entityPath: s3a://dp-input-bucket/test/houses_Madrid.parquet
       entityFilterPatternMatch: "*"
       sourceSchemaUrn: urn:dv:schema:9d4716d4
       projectSchemaUrn: urn:dv:schema:9d4716d6
       fileFormat: parquet
       delimiter: "|"
-      filter: gender != ''
+      filter: subtitle != ''
       processingTimeColumn:
         - processing_time
       actualTimeColumn:
         - processing_time
       projection:
-        - TransactionID
-        - CustomerID
-        - CustomerDOB
-        - CustGender
-        - CustLocation
-        - CustAccountBalance
-        - TransactionDate
-        - TransactionTime
-        - TransactionAmount (INR)
+        - id
+        - title
+        - subtitle
+        - sq_mt_built
+        - sq_mt_useful
+        - rent_price
+        - rent_price_by_area
+        - buy_price
+        - buy_price_by_area
 stateManagement:
   alias: users_count_by_gender
   refreshInterval: 00 10 * * *
@@ -61,4 +63,4 @@ stateManagement:
         - cust_birthday
         - cust_nationality
 transformation:
-  sql: select * from usersS3 group by CustGender
+  sql: select * from usersS3
