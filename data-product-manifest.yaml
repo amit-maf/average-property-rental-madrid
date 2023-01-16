@@ -64,5 +64,5 @@ stateManagement:
         - cust_nationality
 transformation:
   sql: SELECT AVG(rent_price), house_type_id
-    FROM `usersS3`
-    GROUP BY type
+    FROM usersS3
+    GROUP BY house_type_id
