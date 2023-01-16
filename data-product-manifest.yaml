@@ -24,7 +24,7 @@ inputPorts:
       createEntity: true
       entityName: houses_Madrid.parquet
       type: s3-bucket
-      entityPath: s3a://dp-input-bucket/user_car_prices_barcelona_2022/houses_Madrid.parquet
+      entityPath: s3a://dp-input-bucket/property_rental/houses_Madrid.parquet
       entityFilterPatternMatch: "*"
       sourceSchemaUrn: urn:dv:schema:9d4716d4
       projectSchemaUrn: urn:dv:schema:9d4716d6
