@@ -1,7 +1,7 @@
 ---
 version: 0.0.1
 discoveryPort:
-  name: Average property rental value in Madrid neighbourhoods by house type 3
+  name: Property rental in Madrid neighbourhoods by house type
   description: The data product provides average house rental rates in Madrid by house
     type (Pisos, Aticos, Duplex, etc)
   category: customer
@@ -18,23 +18,23 @@ inputPorts:
     extra: {}
     syncType: pull
     type: s3
-    sourceUrn: urn:dv:datasource:8f78c9c5-73f4-43fd-8521-e31d09ceef2d
+    sourceUrn: urn:dv:datasource:1e401b2b-cdb7-4a82-98cd-5784f4568c9b
     entityId:
       alias: usersS3
       createEntity: true
-      entityName: houses_Madrid.parquet
+      entityName: houses_Madrid.csv
       type: s3-bucket
-      entityPath: s3a://dp-input-bucket/property_rental/houses_Madrid.parquet
-      entityFilterPatternMatch: "*"
+      entityPath: s3a://dp-input-bucket/property_rental/houses_Madrid.csv
+      entityFilterPatternMatch: "*.csv"
       sourceSchemaUrn: urn:dv:schema:9d4716d4
       projectSchemaUrn: urn:dv:schema:9d4716d6
-      fileFormat: parquet
-      delimiter: "|"
-      filter: subtitle != ''
+      fileFormat: csv
+      delimiter: ","
+      filter: ""
       processingTimeColumn:
-        - processing_time
+        - created_date
       actualTimeColumn:
-        - processing_time
+        - created_date
       projection:
         - id
         - title
@@ -46,23 +46,57 @@ inputPorts:
         - buy_price
         - buy_price_by_area
 stateManagement:
-  alias: users_count_by_gender
+  alias: usersS3
   refreshInterval: 00 10 * * *
-  logicalSchemaUrn: ${urn:dv:schema:263deedb-916b-40f2-9740-6ee02ce9b8b9}
-  retentionVersions: "10"
-  updateStrategy: SCD-2
+  updateStrategy: append
   productStoreState:
-    logicalSchemaUrn: ${urn:dv:schema:263deedb-916b-40f2-9740-6ee02ce9b8b9}
+    logicalSchema:
+      type: object
+      properties:
+        id:
+          type: number
+          description: ID of the property
+        title:
+          type: string
+          description: Title of the property
+        subtitle:
+          type: string
+          description: Neighbourhood of the property
+        sq_mt_built:
+          type: string
+          description: Total built up area in square meters
+        sq_mt_useful:
+          type: string
+          description: Total carpet area in square meters
+        rent_price:
+          type: string
+          description: Total rental in Euros
+        rent_price_by_area:
+          type: string
+          description: Rental per square meters in Euros
+        buy_price:
+          type: string
+          description: Last sold price of the property in Euros
+        buy_price_by_area:
+          type: string
+          description: Last sold price per square meter of the property in Euros
+      required:
+        - subtitle
+        - rent_price
+        - rent_price_by_area
     retentionVersions: "10"
   updateStrategyOptions:
-    - entityRef: ${urn:dv:datasource:6d4714c3}:1
+    - entityRef: urn:dv:datasource:6d4714c3
       uniqueKeyColumns:
-        - customer_id
+        - nothing
       changeTrackColumns:
-        - cust_title_desc
-        - cust_birthday
-        - cust_nationality
+        - nothing
 transformation:
-  sql: SELECT AVG(rent_price), house_type_id
-    FROM usersS3
-    GROUP BY house_type_id
+  sql: SELECT * FROM usersS3
+  
+outputPort:
+  channels:
+  - channelType: REST-API
+    queryType: SQL
+  - channelType: JDBC
+    queryType: SQL
